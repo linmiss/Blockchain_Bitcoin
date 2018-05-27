@@ -1,1 +1,4 @@
-# this is a block chain demo
+# this is a block chain mini version
+
+# how to run
+* make
