@@ -1,13 +1,18 @@
 BINARY := blockchain
 
-all: build run
+all: build test
 
-build:
-	@echo "==> Go build"
+build: deps
+	@echo "====> Go build"
 	@go build -o $(BINARY)
 
-run:
-	@echo "==> Running"
-	@./$(BINARY)
+deps:
+	@go get -u github.com/boltdb/bolt
 
-.PHONY: build run
+test:
+	./$(BINARY) printchain
+	./$(BINARY) addblock -data "Send 1 BTC to May"
+	./$(BINARY) addblock -data "Pay 0.31337 BTC for a coffee"
+	./$(BINARY) printchain
+
+.PHONY: build deps test
