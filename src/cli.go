@@ -35,7 +35,7 @@ func (cli *CLI) Run() {
 
 	addBlockCmd := flag.NewFlagSet("addblock", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
-
+	// get second flag: addblock -data 'information'
 	addBlockData := addBlockCmd.String("data", "", "Block data")
 
 	switch os.Args[1] {
