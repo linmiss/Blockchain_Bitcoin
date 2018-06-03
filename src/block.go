@@ -1,10 +1,11 @@
 package main
 
 import (
-	"time"
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
 	"log"
+	"time"
 )
 
 // Block: block header and trading
@@ -16,7 +17,7 @@ type Block struct {
 	Timestamp    int64
 	PreBlockHash []byte
 	Hash         []byte
-	Data         []byte
+	Transactions []*Transaction
 	Nonce        int
 }
 
@@ -47,12 +48,12 @@ func DeserializeBlock(d []byte) *Block {
 }
 
 // NewBlock: product new block (need Data and PreBlockHash as params)
-func NewBlock(data string, PreBlockHash []byte) *Block {
+func NewBlock(transactions []*Transaction, PreBlockHash []byte) *Block {
 	block := &Block{
 		Timestamp:    time.Now().Unix(),
 		PreBlockHash: PreBlockHash,
 		Hash:         []byte{},
-		Data:         []byte(data),
+		Transactions: transactions,
 		Nonce:        0,
 	}
 
@@ -65,17 +66,20 @@ func NewBlock(data string, PreBlockHash []byte) *Block {
 	return block
 }
 
-//SetHash: set current block hash
-/*
-func (b *Block) SetHash() {
-	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-	headers := bytes.Join([][]byte{b.PreBlockHash, b.Data, timestamp}, []byte{})
-	hash := sha256.Sum256(headers)
-	b.Hash = hash[:]
-}
-*/
-
 // NewGenesisBlock: first block
-func NewGenesisBlock() *Block {
-	return NewBlock("Tim's Genesis Block", []byte{})
+func NewGenesisBlock(coinbase *Transaction) *Block {
+	return NewBlock([]*Transaction{coinbase}, []byte{})
+}
+
+// 计算区块里所有交易的哈希
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	var txHash [32]byte
+
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.ID)
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+
+	return txHash[:]
 }
